@@ -1,0 +1,27 @@
+name: Update xG data
+
+on:
+  schedule:
+    # Weekly, Monday 04:00 UTC — international form doesn't change game-to-game
+    # fast enough to need more, and this keeps FBref scraping infrequent.
+    - cron: '0 4 * * 1'
+  workflow_dispatch: {}
+
+jobs:
+  update-xg:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+
+      - name: Fetch xG data and push to API
+        env:
+          API_URL: ${{ secrets.API_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: python scripts/fetch_xg.py

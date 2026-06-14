@@ -1,0 +1,5 @@
+cloudscraper
+soccerdata
+pandas
+lxml
+requests

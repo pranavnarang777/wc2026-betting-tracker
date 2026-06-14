@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import db from './db.js';
 import { pullOdds } from './oddsApi.js';
+import { importXgData } from './xgImport.js';
 
 const app = express();
 app.use(cors());
@@ -183,6 +184,21 @@ app.get('/api/fixtures/:id/odds', (req, res) => {
   res.json(rows);
 });
 
+// ---- teams & form -----------------------------------------------------------
+app.get('/api/teams', (_req, res) => {
+  const rows = db.prepare('SELECT * FROM teams ORDER BY name ASC').all();
+  res.json(rows);
+});
+
+app.get('/api/teams/:name', (req, res) => {
+  const team = db.prepare('SELECT * FROM teams WHERE name = ?').get(req.params.name);
+  if (!team) return res.status(404).json({ error: 'Not found' });
+
+  const matches = db.prepare('SELECT * FROM team_matches WHERE team_id = ? ORDER BY date ASC, id ASC')
+    .all(team.id);
+  res.json({ ...team, matches });
+});
+
 // ---- cron-triggered odds pull ----------------------------------------------
 // Protected by CRON_SECRET — pass it as ?key=... or header x-cron-key.
 // Intended to be hit by cron-job.org twice daily.
@@ -214,6 +230,26 @@ async function handleOddsPull(req, res) {
 
 app.get('/api/cron/pull-odds', handleOddsPull);
 app.post('/api/cron/pull-odds', handleOddsPull);
+
+// ---- GitHub Action-triggered xG import --------------------------------------
+// Same CRON_SECRET as the odds pull. Body: { teams: [{ name, elo?, matches: [...] }] }
+async function handleXgUpdate(req, res) {
+  if (!checkCronSecret(req, res)) return;
+  const teams = req.body?.teams;
+  if (!Array.isArray(teams) || teams.length === 0) {
+    return res.status(400).json({ error: 'Body must include a non-empty "teams" array' });
+  }
+  try {
+    const result = importXgData(teams);
+    console.log('[xg] import complete', result);
+    res.json({ ok: true, ...result });
+  } catch (e) {
+    console.error('[xg] import failed', e);
+    res.status(502).json({ error: e.message });
+  }
+}
+
+app.post('/api/cron/update-xg', handleXgUpdate);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`[api] listening on :${PORT}`));
