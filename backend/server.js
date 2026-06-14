@@ -56,6 +56,7 @@ function parseBet(body, { partial = false } = {}) {
     out.in_play_cashout_price = toNumberOrNull(body.in_play_cashout_price);
   }
   if (body.notes !== undefined) out.notes = body.notes == null ? null : String(body.notes);
+  if (body.bet_logic !== undefined) out.bet_logic = body.bet_logic == null ? null : String(body.bet_logic);
 
   return { value: out };
 }
@@ -79,8 +80,8 @@ app.post('/api/bets', (req, res) => {
   if (error) return res.status(400).json({ error });
 
   const stmt = db.prepare(`
-    INSERT INTO bets (match, date, market, odds, stake, status, return_actual, closing_odds, in_play_cashout_price, notes)
-    VALUES (@match, @date, @market, @odds, @stake, @status, @return_actual, @closing_odds, @in_play_cashout_price, @notes)
+    INSERT INTO bets (match, date, market, odds, stake, status, return_actual, closing_odds, in_play_cashout_price, notes, bet_logic)
+    VALUES (@match, @date, @market, @odds, @stake, @status, @return_actual, @closing_odds, @in_play_cashout_price, @notes, @bet_logic)
   `);
   const info = stmt.run({
     match: value.match,
@@ -93,6 +94,7 @@ app.post('/api/bets', (req, res) => {
     closing_odds: value.closing_odds ?? null,
     in_play_cashout_price: value.in_play_cashout_price ?? null,
     notes: value.notes ?? null,
+    bet_logic: value.bet_logic ?? null,
   });
   const row = db.prepare('SELECT * FROM bets WHERE id = ?').get(info.lastInsertRowid);
   res.status(201).json(row);
@@ -120,7 +122,7 @@ app.put('/api/bets/:id', (req, res) => {
     UPDATE bets SET
       match = @match, date = @date, market = @market, odds = @odds, stake = @stake,
       status = @status, return_actual = @return_actual, closing_odds = @closing_odds,
-      in_play_cashout_price = @in_play_cashout_price, notes = @notes
+      in_play_cashout_price = @in_play_cashout_price, notes = @notes, bet_logic = @bet_logic
     WHERE id = @id
   `).run({
     id: existing.id,
@@ -134,6 +136,7 @@ app.put('/api/bets/:id', (req, res) => {
     closing_odds: merged.closing_odds ?? null,
     in_play_cashout_price: merged.in_play_cashout_price ?? null,
     notes: merged.notes ?? null,
+    bet_logic: merged.bet_logic ?? null,
   });
 
   const row = db.prepare('SELECT * FROM bets WHERE id = ?').get(existing.id);

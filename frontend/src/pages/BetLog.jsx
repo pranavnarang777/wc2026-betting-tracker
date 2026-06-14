@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { Fragment, useMemo, useState } from 'react';
 import StatusPill from '../components/StatusPill.jsx';
 import SettleModal from '../components/SettleModal.jsx';
 import { betPnl, isSettled, potentialReturn } from '../lib/stats.js';
@@ -13,12 +13,32 @@ const COLUMNS = [
   { key: 'status', label: 'Status', sortable: false, align: 'left' },
   { key: 'return', label: 'Return', sortable: false, align: 'right' },
   { key: 'pnl', label: 'P&L', sortable: false, align: 'right' },
+  { key: 'logic', label: 'Logic', sortable: false, align: 'center' },
   { key: 'actions', label: '', sortable: false, align: 'right' },
 ];
+
+// Pull a "VERDICT: ..." sentence out of the bet logic text, if present, so it
+// can be highlighted separately in the expanded row.
+function splitVerdict(text) {
+  if (!text) return { body: '', verdict: null };
+  const m = text.match(/(.*?)(?:\s*VERDICT:\s*)(.+)$/s);
+  if (!m) return { body: text, verdict: null };
+  return { body: m[1].trim(), verdict: m[2].trim() };
+}
 
 export default function BetLog({ bets, onUpdate, onDelete, onAdd, flash }) {
   const [sort, setSort] = useState({ key: 'date', dir: 'desc' });
   const [settling, setSettling] = useState(null);
+  const [expanded, setExpanded] = useState(() => new Set());
+
+  function toggleExpand(id) {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
 
   const sorted = useMemo(() => {
     const arr = bets.slice();
@@ -83,32 +103,62 @@ export default function BetLog({ bets, onUpdate, onDelete, onAdd, flash }) {
                 sorted.map((b) => {
                   const pnl = betPnl(b);
                   const settled = isSettled(b);
+                  const hasLogic = !!b.bet_logic;
+                  const isOpen = expanded.has(b.id);
+                  const { body, verdict } = splitVerdict(b.bet_logic);
                   return (
-                    <tr key={b.id}>
-                      <td className="num" style={{ textAlign: 'left' }}>{prettyDate(b.date)}</td>
-                      <td className="match-cell">
-                        <b>{b.match}</b>
-                        {b.notes && <small>{b.notes}</small>}
-                      </td>
-                      <td><span className="market-tag">{b.market}</span></td>
-                      <td className="num">{fmtOdds(b.odds)}</td>
-                      <td className="num">{money(b.stake)}</td>
-                      <td><StatusPill status={b.status} /></td>
-                      <td className="num">
-                        {settled ? money(b.return_actual ?? 0) : <span className="muted">{money(potentialReturn(b))}*</span>}
-                      </td>
-                      <td className={`num ${pnl > 0 ? 'pos' : pnl < 0 ? 'neg' : ''}`} style={{ fontWeight: 700 }}>
-                        {pnl == null ? <span className="muted" style={{ fontWeight: 400 }}>—</span> : signedMoney(pnl)}
-                      </td>
-                      <td className="num">
-                        <div style={{ display: 'inline-flex', gap: 6 }}>
-                          <button className="btn btn--sm" onClick={() => setSettling(b)}>
-                            {settled ? 'Edit' : 'Settle'}
+                    <Fragment key={b.id}>
+                      <tr className={isOpen ? 'is-expanded' : ''}>
+                        <td className="num" style={{ textAlign: 'left' }}>{prettyDate(b.date)}</td>
+                        <td className="match-cell">
+                          <b>{b.match}</b>
+                          {b.notes && <small>{b.notes}</small>}
+                        </td>
+                        <td><span className="market-tag">{b.market}</span></td>
+                        <td className="num">{fmtOdds(b.odds)}</td>
+                        <td className="num">{money(b.stake)}</td>
+                        <td><StatusPill status={b.status} /></td>
+                        <td className="num">
+                          {settled ? money(b.return_actual ?? 0) : <span className="muted">{money(potentialReturn(b))}*</span>}
+                        </td>
+                        <td className={`num ${pnl > 0 ? 'pos' : pnl < 0 ? 'neg' : ''}`} style={{ fontWeight: 700 }}>
+                          {pnl == null ? <span className="muted" style={{ fontWeight: 400 }}>—</span> : signedMoney(pnl)}
+                        </td>
+                        <td style={{ textAlign: 'center' }}>
+                          <button
+                            className={`logic-btn ${hasLogic ? '' : 'is-empty'} ${isOpen ? 'is-open' : ''}`}
+                            onClick={() => hasLogic && toggleExpand(b.id)}
+                            disabled={!hasLogic}
+                            aria-label={hasLogic ? 'Toggle bet logic' : 'No bet logic recorded'}
+                            title={hasLogic ? 'View bet logic' : 'No bet logic recorded'}
+                          >
+                            {hasLogic ? '🧠' : '—'}
                           </button>
-                          <button className="btn btn--sm btn--danger" onClick={() => remove(b)} aria-label="Delete bet">✕</button>
-                        </div>
-                      </td>
-                    </tr>
+                        </td>
+                        <td className="num">
+                          <div style={{ display: 'inline-flex', gap: 6 }}>
+                            <button className="btn btn--sm" onClick={() => setSettling(b)}>
+                              {settled ? 'Edit' : 'Settle'}
+                            </button>
+                            <button className="btn btn--sm btn--danger" onClick={() => remove(b)} aria-label="Delete bet">✕</button>
+                          </div>
+                        </td>
+                      </tr>
+                      {isOpen && hasLogic && (
+                        <tr className="logic-row">
+                          <td colSpan={COLUMNS.length}>
+                            <div className="logic-panel">
+                              {body && <p>{body}</p>}
+                              {verdict && (
+                                <p className="logic-panel__verdict">
+                                  <strong>VERDICT:</strong> {verdict}
+                                </p>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </Fragment>
                   );
                 })
               )}

@@ -11,6 +11,7 @@ export default function SettleModal({ bet, onClose, onSave, flash }) {
     if (bet.status === 'won' || bet.status === 'cashout') return String(bet.return_actual ?? fullReturn);
     return String(fullReturn);
   });
+  const [betLogic, setBetLogic] = useState(bet.bet_logic ?? '');
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState(null);
 
@@ -35,6 +36,7 @@ export default function SettleModal({ bet, onClose, onSave, flash }) {
       await onSave(bet.id, {
         status: outcome,
         return_actual: outcome === 'lost' ? 0 : returnValue,
+        bet_logic: betLogic.trim() || null,
       });
       onClose();
     } catch (e) {
@@ -92,6 +94,16 @@ export default function SettleModal({ bet, onClose, onSave, flash }) {
               </div>
             </div>
           )}
+
+          <div className="field">
+            <label>Bet Logic <span className="muted">· optional</span></label>
+            <textarea
+              className="textarea"
+              placeholder="Why this bet — model edge, structural factors, line value, post-settlement verdict…"
+              value={betLogic}
+              onChange={(e) => setBetLogic(e.target.value)}
+            />
+          </div>
 
           <div
             className="card__pad"

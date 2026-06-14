@@ -25,26 +25,74 @@ db.exec(`
     closing_odds         REAL,                        -- Pinnacle closing line (for CLV)
     in_play_cashout_price REAL,                       -- optional in-play cashout price
     notes                TEXT,
+    bet_logic            TEXT,                        -- why the bet was taken + post-settlement verdict
     created_at           TEXT    NOT NULL DEFAULT (datetime('now'))
   );
 `);
 
-// --- Seed one starter bet on first boot ------------------------------------
+// Migration: add bet_logic to databases created before this column existed.
+const hasBetLogic = db.prepare("PRAGMA table_info(bets)").all().some((c) => c.name === 'bet_logic');
+if (!hasBetLogic) {
+  db.exec('ALTER TABLE bets ADD COLUMN bet_logic TEXT');
+}
+
+// --- Seed starter bets on first boot ----------------------------------------
 const count = db.prepare('SELECT COUNT(*) AS n FROM bets').get().n;
 if (count === 0) {
-  db.prepare(`
-    INSERT INTO bets (match, date, market, odds, stake, status, notes)
-    VALUES (@match, @date, @market, @odds, @stake, @status, @notes)
-  `).run({
-    match: 'Qatar vs Switzerland',
-    date: '2026-06-13',
-    market: 'Under 2.5',
-    odds: 2.15,
-    stake: 10,
-    status: 'open',
-    notes: 'Opening bet — World Cup 2026 group stage.',
-  });
-  console.log('[db] seeded starter bet');
+  const insert = db.prepare(`
+    INSERT INTO bets (match, date, market, odds, stake, status, return_actual, notes, bet_logic)
+    VALUES (@match, @date, @market, @odds, @stake, @status, @return_actual, @notes, @bet_logic)
+  `);
+
+  const seedBets = [
+    {
+      match: 'Qatar vs Switzerland',
+      date: '2026-06-13',
+      market: 'Under 2.5',
+      odds: 2.15,
+      stake: 10,
+      status: 'won',
+      return_actual: 21.5,
+      notes: 'Opening bet — World Cup 2026 group stage.',
+      bet_logic: 'Under 2.5 @ 2.15. Model prior 56% vs 44% implied. Structural lean: WC opener (2.38 avg goals), midday heat, Qatar bus-parking, Almoez Ali benched. Pinnacle confirmed soft line. VERDICT: Good bet, good outcome.',
+    },
+    {
+      match: 'Brazil vs Morocco',
+      date: '2026-06-14',
+      market: 'Morocco over 0.5 goals',
+      odds: 2.20,
+      stake: 10,
+      status: 'won',
+      return_actual: 22.0,
+      notes: null,
+      bet_logic: 'Morocco over 0.5 goals @ 2.20. Implied 45.5% vs realistic ~75% for any competitive team to score. Elo gap only +164 — genuinely competitive match. VERDICT: Good bet, good outcome.',
+    },
+    {
+      match: 'Haiti vs Scotland',
+      date: '2026-06-15',
+      market: 'Scotland win + over 2.5 goals',
+      odds: 2.45,
+      stake: 10,
+      status: 'lost',
+      return_actual: 0,
+      notes: null,
+      bet_logic: 'Scotland win + over 2.5 combo @ 2.45. Scotland win ~65% × over 2.5 ~45% = joint ~29%. Breakeven needs 40.8%. Combo destroyed individual leg value. VERDICT: Bad bet — parlay trap. Outcome irrelevant.',
+    },
+    {
+      match: 'Turkey vs Australia',
+      date: '2026-06-16',
+      market: 'Kerem Aktürkoglu to score or assist',
+      odds: 2.00,
+      stake: 10,
+      status: 'lost',
+      return_actual: 0,
+      notes: null,
+      bet_logic: 'Kerem Aktürkoglu score or assist @ 2.00. Implies 50% but realistic probability ~25-35% for any winger per game. VERDICT: Bad bet — overpriced prop.',
+    },
+  ];
+
+  for (const bet of seedBets) insert.run(bet);
+  console.log('[db] seeded starter bets');
 }
 
 export default db;

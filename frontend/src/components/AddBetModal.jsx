@@ -12,7 +12,7 @@ const today = new Date().toISOString().slice(0, 10);
 export default function AddBetModal({ onClose, onSave, flash }) {
   const [form, setForm] = useState({
     match: '', date: today, market: '', odds: '', stake: '',
-    closing_odds: '', in_play_cashout_price: '', notes: '',
+    closing_odds: '', in_play_cashout_price: '', notes: '', bet_logic: '',
   });
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState(null);
@@ -44,6 +44,7 @@ export default function AddBetModal({ onClose, onSave, flash }) {
         closing_odds: form.closing_odds === '' ? null : Number(form.closing_odds),
         in_play_cashout_price: form.in_play_cashout_price === '' ? null : Number(form.in_play_cashout_price),
         notes: form.notes.trim() || null,
+        bet_logic: form.bet_logic.trim() || null,
       });
       onClose();
     } catch (e) {
@@ -111,6 +112,12 @@ export default function AddBetModal({ onClose, onSave, flash }) {
           <div className="field">
             <label>Notes <span className="muted">· optional</span></label>
             <textarea className="textarea" placeholder="Reasoning, line movement, conditions…" value={form.notes} onChange={set('notes')} />
+          </div>
+
+          <div className="field">
+            <label>Bet Logic <span className="muted">· optional</span></label>
+            <textarea className="textarea" placeholder="Why this bet — model edge, structural factors, line value…" value={form.bet_logic} onChange={set('bet_logic')} />
+            <div className="hint">Your reasoning + (after settlement) verdict — shown in the Bet Log.</div>
           </div>
 
           {potential != null && (

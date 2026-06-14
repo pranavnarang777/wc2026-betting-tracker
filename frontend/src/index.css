@@ -221,6 +221,27 @@ table.bets { width: 100%; border-collapse: collapse; font-size: 14px; }
 .match-cell small { display: block; color: var(--text-mute); font-size: 12px; }
 .market-tag { display: inline-block; padding: 2px 9px; border-radius: 7px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--line-soft); font-size: 12.5px; }
 
+/* Bet Logic column */
+.logic-btn {
+  width: 30px; height: 30px; border-radius: 9px; display: inline-grid; place-items: center;
+  background: rgba(139, 124, 255, 0.10); border: 1px solid rgba(139, 124, 255, 0.25);
+  font-size: 14px; transition: all 0.14s;
+}
+.logic-btn:hover:not(:disabled) { background: rgba(139, 124, 255, 0.18); border-color: rgba(139, 124, 255, 0.4); }
+.logic-btn.is-open { background: rgba(139, 124, 255, 0.22); border-color: var(--violet); }
+.logic-btn.is-empty { background: transparent; border-color: var(--line-soft); color: var(--text-mute); cursor: default; font-size: 13px; }
+tr.is-expanded td { background: rgba(139, 124, 255, 0.04); }
+tr.logic-row td { padding: 0; border-bottom: 1px solid var(--line-soft); }
+.logic-panel {
+  padding: 14px 18px; margin: 2px 10px 12px; border-radius: 12px;
+  background: rgba(139, 124, 255, 0.06); border: 1px solid rgba(139, 124, 255, 0.18);
+  font-size: 13.5px; line-height: 1.55; color: var(--text-dim);
+}
+.logic-panel p { margin: 0 0 8px; }
+.logic-panel p:last-child { margin-bottom: 0; }
+.logic-panel__verdict { color: var(--text); }
+.logic-panel__verdict strong { color: var(--violet); letter-spacing: 0.04em; }
+
 /* Open-bet rows on dashboard */
 .openbet { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 16px; border-bottom: 1px solid var(--line-soft); }
 .openbet:last-child { border-bottom: none; }
@@ -283,6 +304,34 @@ table.bets { width: 100%; border-collapse: collapse; font-size: 14px; }
 .legend-row { display: flex; gap: 18px; flex-wrap: wrap; font-size: 12.5px; color: var(--text-dim); }
 .legend-row i { width: 9px; height: 9px; border-radius: 3px; display: inline-block; margin-right: 6px; vertical-align: middle; }
 
+/* How We Bet */
+.howwebet__grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.howwebet__item {
+  padding: 18px; border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.025); border: 1px solid var(--line-soft);
+}
+.howwebet__item--wide { grid-column: span 2; }
+.howwebet__num {
+  font-family: var(--font-mono); font-size: 12px; color: var(--green);
+  letter-spacing: 0.1em; margin-bottom: 8px; opacity: 0.8;
+}
+.howwebet__item h3 {
+  font-family: var(--font-display); font-size: 15.5px; font-weight: 600;
+  letter-spacing: -0.01em; margin: 0 0 8px;
+}
+.howwebet__item p { font-size: 13.5px; color: var(--text-dim); line-height: 1.6; margin: 0; }
+.howwebet__item p + p { margin-top: 8px; }
+.howwebet__factors {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px 24px;
+  margin: 10px 0 0; padding-left: 20px; font-size: 13.5px; color: var(--text-dim); line-height: 1.6;
+}
+.howwebet__markets { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 4px 0 10px; }
+.howwebet__markets ul { margin: 0; padding-left: 18px; font-size: 13px; color: var(--text-dim); line-height: 1.7; }
+.howwebet__bankroll { display: flex; gap: 18px; margin: 4px 0 10px; flex-wrap: wrap; }
+.howwebet__bankroll div { display: flex; flex-direction: column; }
+.howwebet__bankroll b { font-family: var(--font-display); font-size: 22px; font-weight: 700; color: var(--green); }
+.howwebet__bankroll span { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-mute); margin-top: 2px; }
+
 .empty { text-align: center; color: var(--text-mute); padding: 40px 20px; font-size: 14px; }
 .spinner { width: 26px; height: 26px; border: 3px solid var(--line); border-top-color: var(--green); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 60px auto; }
 
@@ -314,6 +363,9 @@ table.bets { width: 100%; border-collapse: collapse; font-size: 14px; }
   .cols-4 { grid-template-columns: repeat(2, 1fr); }
   .cols-3 { grid-template-columns: 1fr; }
   .hero__value { font-size: clamp(38px, 13vw, 56px); }
+  .howwebet__grid { grid-template-columns: 1fr; }
+  .howwebet__item--wide { grid-column: span 1; }
+  .howwebet__factors { grid-template-columns: 1fr; }
 }
 @media (max-width: 620px) {
   .topbar { gap: 10px; padding: 11px 14px; }
@@ -323,4 +375,5 @@ table.bets { width: 100%; border-collapse: collapse; font-size: 14px; }
   .cols-2 { grid-template-columns: 1fr; }
   .row2 { grid-template-columns: 1fr; }
   .btn span.btn-label { display: none; }
+  .howwebet__markets { grid-template-columns: 1fr; }
 }

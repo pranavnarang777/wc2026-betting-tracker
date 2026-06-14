@@ -145,6 +145,102 @@ export default function Dashboard({ bets, onAdd }) {
           )}
         </div>
       </div>
+
+      <HowWeBet />
+    </div>
+  );
+}
+
+const STRUCTURAL_FACTORS = [
+  'Travel distance & altitude shifts between fixtures',
+  'Rest days & fixture congestion vs the opponent',
+  'Kickoff time, heat & humidity at the venue',
+  'Squad rotation and "dead rubber" group games',
+  'Confirmed late injuries / suspensions to key players',
+  'Historic head-to-head tempo (high vs low-event games)',
+  'Referee tendencies and likely game-state (cards, fouls, time-wasting)',
+  'Market overreaction to big-name reputation vs current form',
+];
+
+function HowWeBet() {
+  return (
+    <div className="card" style={{ marginTop: 16 }}>
+      <div className="card__head">
+        <div className="card__title">How We Bet</div>
+        <div className="muted" style={{ fontSize: 12.5 }}>process, not vibes</div>
+      </div>
+
+      <div className="card__pad howwebet">
+        <div className="howwebet__grid">
+          <div className="howwebet__item">
+            <div className="howwebet__num">01</div>
+            <h3>Elo + Poisson baseline</h3>
+            <p>
+              Every match starts with team Elo ratings converted into expected goals
+              for each side. Those expected goals feed a Poisson model that prices
+              scorelines, totals (over/under), both-teams-to-score and handicap lines —
+              giving us a model probability for every market before we look at the odds.
+            </p>
+          </div>
+
+          <div className="howwebet__item">
+            <div className="howwebet__num">02</div>
+            <h3>Pinnacle close as the value filter</h3>
+            <p>
+              The model price alone isn't enough — we compare it against <b>Pinnacle's
+              closing line</b>, the sharpest number the market produces. If our price beats
+              the close (positive CLV), that's evidence of genuine edge. If the close moves
+              against us, the bet is treated as a model error, win or lose.
+            </p>
+          </div>
+
+          <div className="howwebet__item howwebet__item--wide">
+            <div className="howwebet__num">03</div>
+            <h3>Eight structural &amp; hidden factors</h3>
+            <p>Before staking, every fixture is screened for the situational edges a pure ratings model misses:</p>
+            <ol className="howwebet__factors">
+              {STRUCTURAL_FACTORS.map((f) => <li key={f}>{f}</li>)}
+            </ol>
+          </div>
+
+          <div className="howwebet__item">
+            <div className="howwebet__num">04</div>
+            <h3>Markets: target vs avoid</h3>
+            <div className="howwebet__markets">
+              <div>
+                <span className="pill pill--won" style={{ marginBottom: 8 }}>Target</span>
+                <ul>
+                  <li>Totals — over/under goals</li>
+                  <li>Draw markets</li>
+                  <li>Underdogs &amp; handicap dogs</li>
+                </ul>
+              </div>
+              <div>
+                <span className="pill pill--lost" style={{ marginBottom: 8 }}>Avoid</span>
+                <ul>
+                  <li>Combos / parlays</li>
+                  <li>Unconfirmed player props</li>
+                  <li>Heavily juiced favourites</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div className="howwebet__item">
+            <div className="howwebet__num">05</div>
+            <h3>Bankroll rules</h3>
+            <div className="howwebet__bankroll">
+              <div><b>€200</b><span>Total bankroll</span></div>
+              <div><b>€25</b><span>Max single bet</span></div>
+              <div><b>0</b><span>Loss-chasing bets</span></div>
+            </div>
+            <p>
+              Stakes never exceed 12.5% of bankroll on a single bet, and a losing run never
+              changes the process — no doubling up, no revenge bets.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
