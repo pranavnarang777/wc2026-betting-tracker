@@ -50,6 +50,13 @@ export function summarise(bets) {
   const openStake = open.reduce((s, b) => s + b.stake, 0);
   const openPotentialReturn = open.reduce((s, b) => s + potentialReturn(b), 0);
 
+  // Average CLV: edge of your odds vs the closing line, across settled bets
+  // that have a closing line recorded. Positive = you beat the close on average.
+  const settledWithClose = settled.filter((b) => b.closing_odds && b.closing_odds > 1);
+  const avgClv = settledWithClose.length
+    ? settledWithClose.reduce((s, b) => s + (b.odds / b.closing_odds - 1) * 100, 0) / settledWithClose.length
+    : null;
+
   return {
     pnl,
     roi,
@@ -64,6 +71,8 @@ export function summarise(bets) {
     openCount: open.length,
     openStake,
     openPotentialReturn,
+    avgClv,
+    avgClvCount: settledWithClose.length,
   };
 }
 

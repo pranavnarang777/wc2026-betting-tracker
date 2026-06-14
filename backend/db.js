@@ -95,4 +95,55 @@ if (count === 0) {
   console.log('[db] seeded starter bets');
 }
 
+// --- World Cup data model: teams, form, fixtures, odds ----------------------
+// These power the xG pipeline (Phase 2), odds pipeline (Phase 3) and the
+// per-match briefing export (Phase 4). Additive only — does not touch `bets`.
+db.exec(`
+  CREATE TABLE IF NOT EXISTS teams (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    name            TEXT    NOT NULL UNIQUE,
+    elo             REAL,
+    avg_xg_for      REAL,                 -- rolling average xG scored (last 15)
+    avg_xg_against  REAL,                 -- rolling average xG conceded (last 15)
+    adj_xg_for      REAL,                 -- opponent-strength-adjusted xG for
+    adj_xg_against  REAL,                 -- opponent-strength-adjusted xG against
+    last_updated    TEXT
+  );
+
+  CREATE TABLE IF NOT EXISTS team_matches (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    team_id       INTEGER NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
+    date          TEXT    NOT NULL,       -- ISO yyyy-mm-dd
+    opponent      TEXT    NOT NULL,
+    score_for     INTEGER,
+    score_against INTEGER,
+    xg_for        REAL,
+    xg_against    REAL
+  );
+  CREATE INDEX IF NOT EXISTS idx_team_matches_team ON team_matches(team_id, date);
+
+  CREATE TABLE IF NOT EXISTS fixtures (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    date         TEXT    NOT NULL,        -- ISO yyyy-mm-dd
+    home_team    TEXT    NOT NULL,
+    away_team    TEXT    NOT NULL,
+    "group"      TEXT,
+    city         TEXT,
+    kickoff_time TEXT                     -- HH:MM, local kickoff
+  );
+
+  CREATE TABLE IF NOT EXISTS odds (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    fixture_id      INTEGER NOT NULL REFERENCES fixtures(id) ON DELETE CASCADE,
+    bookmaker       TEXT    NOT NULL,
+    market          TEXT    NOT NULL,     -- h2h | totals | spreads | btts
+    outcome         TEXT    NOT NULL,     -- e.g. "Home", "Over 2.5", "+0.5"
+    decimal_odds    REAL    NOT NULL,
+    implied_prob    REAL,                 -- raw 1/decimal_odds
+    devig_prob      REAL,                 -- overround-normalised probability
+    pulled_at       TEXT    NOT NULL DEFAULT (datetime('now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_odds_fixture ON odds(fixture_id, market, pulled_at);
+`);
+
 export default db;

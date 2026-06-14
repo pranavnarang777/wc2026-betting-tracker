@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import db from './db.js';
+import { pullOdds } from './oddsApi.js';
 
 const app = express();
 app.use(cors());
@@ -148,6 +149,71 @@ app.delete('/api/bets/:id', (req, res) => {
   if (info.changes === 0) return res.status(404).json({ error: 'Not found' });
   res.json({ ok: true });
 });
+
+// ---- fixtures & odds --------------------------------------------------------
+app.get('/api/fixtures', (_req, res) => {
+  const rows = db.prepare('SELECT * FROM fixtures ORDER BY date ASC, id ASC').all();
+  res.json(rows);
+});
+
+app.get('/api/fixtures/:id', (req, res) => {
+  const row = db.prepare('SELECT * FROM fixtures WHERE id = ?').get(req.params.id);
+  if (!row) return res.status(404).json({ error: 'Not found' });
+  res.json(row);
+});
+
+// All odds rows for a fixture, most recent pulls first. Pass ?latest=1 to get
+// only the most recent pull per bookmaker/market/outcome.
+app.get('/api/fixtures/:id/odds', (req, res) => {
+  const fixture = db.prepare('SELECT id FROM fixtures WHERE id = ?').get(req.params.id);
+  if (!fixture) return res.status(404).json({ error: 'Not found' });
+
+  if (req.query.latest) {
+    const rows = db.prepare(`
+      SELECT o.* FROM odds o
+      WHERE o.fixture_id = ?
+        AND o.pulled_at = (SELECT MAX(o2.pulled_at) FROM odds o2 WHERE o2.fixture_id = o.fixture_id)
+      ORDER BY o.market, o.bookmaker, o.outcome
+    `).all(req.params.id);
+    return res.json(rows);
+  }
+
+  const rows = db.prepare('SELECT * FROM odds WHERE fixture_id = ? ORDER BY pulled_at DESC, market, bookmaker, outcome')
+    .all(req.params.id);
+  res.json(rows);
+});
+
+// ---- cron-triggered odds pull ----------------------------------------------
+// Protected by CRON_SECRET — pass it as ?key=... or header x-cron-key.
+// Intended to be hit by cron-job.org twice daily.
+function checkCronSecret(req, res) {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) {
+    res.status(500).json({ error: 'CRON_SECRET is not configured on the server' });
+    return false;
+  }
+  const provided = req.get('x-cron-key') || req.query.key;
+  if (provided !== secret) {
+    res.status(401).json({ error: 'Unauthorized' });
+    return false;
+  }
+  return true;
+}
+
+async function handleOddsPull(req, res) {
+  if (!checkCronSecret(req, res)) return;
+  try {
+    const result = await pullOdds();
+    console.log('[odds] pull complete', result);
+    res.json({ ok: true, ...result });
+  } catch (e) {
+    console.error('[odds] pull failed', e);
+    res.status(502).json({ error: e.message });
+  }
+}
+
+app.get('/api/cron/pull-odds', handleOddsPull);
+app.post('/api/cron/pull-odds', handleOddsPull);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`[api] listening on :${PORT}`));

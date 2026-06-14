@@ -61,6 +61,12 @@ export default function Dashboard({ bets, onAdd }) {
               <b className="pos">{money(s.openPotentialReturn)}</b>
               <span>Open Upside</span>
             </div>
+            {s.avgClv != null && (
+              <div>
+                <b className={s.avgClv > 0 ? 'pos' : s.avgClv < 0 ? 'neg' : ''}>{signedPct(s.avgClv, 2)}</b>
+                <span>Avg CLV ({s.avgClvCount})</span>
+              </div>
+            )}
           </div>
         </div>
 

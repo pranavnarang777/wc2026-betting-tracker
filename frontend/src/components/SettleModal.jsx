@@ -12,6 +12,7 @@ export default function SettleModal({ bet, onClose, onSave, flash }) {
     return String(fullReturn);
   });
   const [betLogic, setBetLogic] = useState(bet.bet_logic ?? '');
+  const [closingOdds, setClosingOdds] = useState(bet.closing_odds != null ? String(bet.closing_odds) : '');
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState(null);
 
@@ -31,12 +32,21 @@ export default function SettleModal({ bet, onClose, onSave, flash }) {
         return;
       }
     }
+    let closingOddsValue = null;
+    if (closingOdds.trim() !== '') {
+      closingOddsValue = Number(closingOdds);
+      if (!Number.isFinite(closingOddsValue) || closingOddsValue <= 1) {
+        setErr('Closing line odds must be a decimal greater than 1.');
+        return;
+      }
+    }
     setSaving(true);
     try {
       await onSave(bet.id, {
         status: outcome,
         return_actual: outcome === 'lost' ? 0 : returnValue,
         bet_logic: betLogic.trim() || null,
+        closing_odds: closingOddsValue,
       });
       onClose();
     } catch (e) {
@@ -94,6 +104,18 @@ export default function SettleModal({ bet, onClose, onSave, flash }) {
               </div>
             </div>
           )}
+
+          <div className="field">
+            <label>Closing line odds <span className="muted">· optional</span></label>
+            <input
+              className="input mono"
+              type="number" step="0.01" min="1.01" inputMode="decimal"
+              placeholder="Pinnacle close, e.g. 2.05"
+              value={closingOdds}
+              onChange={(e) => setClosingOdds(e.target.value)}
+            />
+            <div className="hint">Used for CLV — your price ({fmtOdds(bet.odds)}) vs the closing line.</div>
+          </div>
 
           <div className="field">
             <label>Bet Logic <span className="muted">· optional</span></label>

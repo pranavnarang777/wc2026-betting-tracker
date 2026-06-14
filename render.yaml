@@ -12,8 +12,18 @@ services:
     envVars:
       - key: NODE_VERSION
         value: 20
+      # Set these in the Render dashboard (Environment) — not committed here.
+      #   ODDS_API_KEY  — key from https://the-odds-api.com
+      #   CRON_SECRET   — any random string; cron-job.org must send it back as
+      #                   ?key=... or header x-cron-key when hitting
+      #                   /api/cron/pull-odds
+      # Optional:
+      #   ODDS_API_SPORT_KEY (default soccer_fifa_world_cup)
+      #   ODDS_API_REGIONS   (default eu)
+      #
       # NOTE: Render's free tier has an EPHEMERAL filesystem — the SQLite file is
-      # wiped on every deploy/restart and the bet re-seeds. To persist data,
-      # attach a Render Disk and set DB_PATH to a path on that disk, e.g.:
+      # wiped on every deploy/restart (bets re-seed; fixtures/odds/teams are
+      # lost and rebuilt by the next cron pull). To persist data across
+      # redeploys, attach a Render Disk and set DB_PATH to a path on it, e.g.:
       #   - key: DB_PATH
       #     value: /var/data/bets.db
