@@ -5,15 +5,20 @@ import db from './db.js';
 // de-vigged (overround-stripped) probabilities, and stores a timestamped
 // snapshot per bookmaker/market/outcome in the `odds` table.
 //
-// Cost control: one call per pull, one region, four markets combined — The
-// Odds API bills per (market x region), so this is ~4 "requests" per pull.
-// Twice daily = ~8/day = ~240/month, comfortably under the 500/month free cap.
+// Cost control: one call per pull, one region, three markets combined — The
+// Odds API bills per (market x region), so this is ~3 "requests" per pull.
+// Twice daily = ~6/day = ~180/month, comfortably under the 500/month free cap.
+//
+// Note: "btts" is an additional market only available per-event via
+// /events/{id}/odds, not the bulk /sports/{sport}/odds endpoint used here
+// (combining it in this call returns a 422 INVALID_MARKET error), so it's
+// excluded for now.
 // ---------------------------------------------------------------------------
 
 const API_BASE = 'https://api.the-odds-api.com/v4';
 const SPORT_KEY = process.env.ODDS_API_SPORT_KEY || 'soccer_fifa_world_cup';
 const REGIONS = process.env.ODDS_API_REGIONS || 'eu';
-const MARKETS = 'h2h,totals,spreads,btts';
+const MARKETS = 'h2h,totals,spreads';
 
 function impliedProb(decimalOdds) {
   return 1 / decimalOdds;
