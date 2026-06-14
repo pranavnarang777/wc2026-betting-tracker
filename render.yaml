@@ -1,0 +1,19 @@
+# Render blueprint for the backend API (free tier).
+# In the Render dashboard: New → Blueprint → point at this repo.
+services:
+  - type: web
+    name: wc2026-betting-api
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      # NOTE: Render's free tier has an EPHEMERAL filesystem — the SQLite file is
+      # wiped on every deploy/restart and the bet re-seeds. To persist data,
+      # attach a Render Disk and set DB_PATH to a path on that disk, e.g.:
+      #   - key: DB_PATH
+      #     value: /var/data/bets.db

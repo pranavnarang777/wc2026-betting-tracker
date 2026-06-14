@@ -1,0 +1,19 @@
+{
+  "name": "wc2026-betting-tracker-api",
+  "version": "1.0.0",
+  "description": "World Cup 2026 betting tracker — Express + SQLite API",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.3.0",
+    "cors": "^2.8.5",
+    "express": "^4.21.0"
+  }
+}
