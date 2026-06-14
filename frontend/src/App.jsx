@@ -4,6 +4,7 @@ import { api } from './api.js';
 import Dashboard from './pages/Dashboard.jsx';
 import BetLog from './pages/BetLog.jsx';
 import Analytics from './pages/Analytics.jsx';
+import Briefing from './pages/Briefing.jsx';
 import AddBetModal from './components/AddBetModal.jsx';
 
 function Logo() {
@@ -89,6 +90,7 @@ export default function App() {
           <NavLink to="/" end className={({ isActive }) => (isActive ? 'active' : '')}>Dashboard</NavLink>
           <NavLink to="/bets" className={({ isActive }) => (isActive ? 'active' : '')}>Bet Log</NavLink>
           <NavLink to="/analytics" className={({ isActive }) => (isActive ? 'active' : '')}>Analytics</NavLink>
+          <NavLink to="/briefing" className={({ isActive }) => (isActive ? 'active' : '')}>Briefing</NavLink>
         </nav>
 
         <div className="topbar__spacer" />
@@ -116,6 +118,7 @@ export default function App() {
             element={<BetLog bets={bets} onUpdate={handleUpdate} onDelete={handleDelete} onAdd={() => setAddOpen(true)} flash={flash} />}
           />
           <Route path="/analytics" element={<Analytics bets={bets} />} />
+          <Route path="/briefing" element={<Briefing flash={flash} />} />
         </Routes>
       )}
 

@@ -26,4 +26,6 @@ export const api = {
   updateBet: (id, patch) =>
     request(`/api/bets/${id}`, { method: 'PUT', body: JSON.stringify(patch) }),
   deleteBet: (id) => request(`/api/bets/${id}`, { method: 'DELETE' }),
+  listFixtures: () => request('/api/fixtures'),
+  getBriefing: (id) => request(`/api/fixtures/${id}/briefing`),
 };

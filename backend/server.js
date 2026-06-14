@@ -3,6 +3,7 @@ import cors from 'cors';
 import db from './db.js';
 import { pullOdds } from './oddsApi.js';
 import { importXgData } from './xgImport.js';
+import { buildBriefing } from './briefing.js';
 
 const app = express();
 app.use(cors());
@@ -197,6 +198,13 @@ app.get('/api/teams/:name', (req, res) => {
   const matches = db.prepare('SELECT * FROM team_matches WHERE team_id = ? ORDER BY date ASC, id ASC')
     .all(team.id);
   res.json({ ...team, matches });
+});
+
+// Everything needed for the "Generate Briefing" page in one call.
+app.get('/api/fixtures/:id/briefing', (req, res) => {
+  const data = buildBriefing(req.params.id);
+  if (!data) return res.status(404).json({ error: 'Not found' });
+  res.json(data);
 });
 
 // ---- cron-triggered odds pull ----------------------------------------------
