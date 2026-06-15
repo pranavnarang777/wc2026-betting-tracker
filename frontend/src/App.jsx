@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard.jsx';
 import BetLog from './pages/BetLog.jsx';
 import Analytics from './pages/Analytics.jsx';
 import Briefing from './pages/Briefing.jsx';
+import Methodology from './pages/Methodology.jsx';
 import AddBetModal from './components/AddBetModal.jsx';
 
 function Logo() {
@@ -91,6 +92,7 @@ export default function App() {
           <NavLink to="/bets" className={({ isActive }) => (isActive ? 'active' : '')}>Bet Log</NavLink>
           <NavLink to="/analytics" className={({ isActive }) => (isActive ? 'active' : '')}>Analytics</NavLink>
           <NavLink to="/briefing" className={({ isActive }) => (isActive ? 'active' : '')}>Briefing</NavLink>
+          <NavLink to="/methodology" className={({ isActive }) => (isActive ? 'active' : '')}>Methodology</NavLink>
         </nav>
 
         <div className="topbar__spacer" />
@@ -119,6 +121,7 @@ export default function App() {
           />
           <Route path="/analytics" element={<Analytics bets={bets} />} />
           <Route path="/briefing" element={<Briefing flash={flash} />} />
+          <Route path="/methodology" element={<Methodology />} />
         </Routes>
       )}
 

@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine,
 } from 'recharts';
@@ -159,17 +160,6 @@ export default function Dashboard({ bets, onAdd }) {
   );
 }
 
-const STRUCTURAL_FACTORS = [
-  'Travel distance & altitude shifts between fixtures',
-  'Rest days & fixture congestion vs the opponent',
-  'Kickoff time, heat & humidity at the venue',
-  'Squad rotation and "dead rubber" group games',
-  'Confirmed late injuries / suspensions to key players',
-  'Historic head-to-head tempo (high vs low-event games)',
-  'Referee tendencies and likely game-state (cards, fouls, time-wasting)',
-  'Market overreaction to big-name reputation vs current form',
-];
-
 function HowWeBet() {
   return (
     <div className="card" style={{ marginTop: 16 }}>
@@ -179,74 +169,16 @@ function HowWeBet() {
       </div>
 
       <div className="card__pad howwebet">
-        <div className="howwebet__grid">
-          <div className="howwebet__item">
-            <div className="howwebet__num">01</div>
-            <h3>Elo + Poisson baseline</h3>
-            <p>
-              Every match starts with team Elo ratings converted into expected goals
-              for each side. Those expected goals feed a Poisson model that prices
-              scorelines, totals (over/under), both-teams-to-score and handicap lines —
-              giving us a model probability for every market before we look at the odds.
-            </p>
-          </div>
-
-          <div className="howwebet__item">
-            <div className="howwebet__num">02</div>
-            <h3>Pinnacle close as the value filter</h3>
-            <p>
-              The model price alone isn't enough — we compare it against <b>Pinnacle's
-              closing line</b>, the sharpest number the market produces. If our price beats
-              the close (positive CLV), that's evidence of genuine edge. If the close moves
-              against us, the bet is treated as a model error, win or lose.
-            </p>
-          </div>
-
-          <div className="howwebet__item howwebet__item--wide">
-            <div className="howwebet__num">03</div>
-            <h3>Eight structural &amp; hidden factors</h3>
-            <p>Before staking, every fixture is screened for the situational edges a pure ratings model misses:</p>
-            <ol className="howwebet__factors">
-              {STRUCTURAL_FACTORS.map((f) => <li key={f}>{f}</li>)}
-            </ol>
-          </div>
-
-          <div className="howwebet__item">
-            <div className="howwebet__num">04</div>
-            <h3>Markets: target vs avoid</h3>
-            <div className="howwebet__markets">
-              <div>
-                <span className="pill pill--won" style={{ marginBottom: 8 }}>Target</span>
-                <ul>
-                  <li>Totals — over/under goals</li>
-                  <li>Draw markets</li>
-                  <li>Underdogs &amp; handicap dogs</li>
-                </ul>
-              </div>
-              <div>
-                <span className="pill pill--lost" style={{ marginBottom: 8 }}>Avoid</span>
-                <ul>
-                  <li>Combos / parlays</li>
-                  <li>Unconfirmed player props</li>
-                  <li>Heavily juiced favourites</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          <div className="howwebet__item">
-            <div className="howwebet__num">05</div>
-            <h3>Bankroll rules</h3>
-            <div className="howwebet__bankroll">
-              <div><b>€200</b><span>Total bankroll</span></div>
-              <div><b>€25</b><span>Max single bet</span></div>
-              <div><b>0</b><span>Loss-chasing bets</span></div>
-            </div>
-            <p>
-              Stakes never exceed 12.5% of bankroll on a single bet, and a losing run never
-              changes the process — no doubling up, no revenge bets.
-            </p>
-          </div>
+        <p className="lede">
+          We can’t beat the market — sharp books price these games better than we can.
+          The aim isn’t profit, it’s discipline: estimate each outcome’s true
+          probability from <b>Elo + recent xG + structural factors</b>, compare it to the
+          breakeven the odds demand (<span className="mono">1 ÷ odds</span>), and bet only
+          when there’s a real cushion. Stakes are small (€200 bankroll, €25 max, scaled to
+          edge), and the honest measure of success is <b>closing-line value</b>, not P&amp;L.
+        </p>
+        <div style={{ marginTop: 14 }}>
+          <Link to="/methodology" className="btn btn--sm">Read the full methodology →</Link>
         </div>
       </div>
     </div>
