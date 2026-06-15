@@ -69,7 +69,7 @@ if (count === 0) {
     },
     {
       match: 'Haiti vs Scotland',
-      date: '2026-06-15',
+      date: '2026-06-14',
       market: 'Scotland win + over 2.5 goals',
       odds: 2.45,
       stake: 10,
@@ -80,7 +80,7 @@ if (count === 0) {
     },
     {
       match: 'Turkey vs Australia',
-      date: '2026-06-16',
+      date: '2026-06-14',
       market: 'Kerem Aktürkoglu to score or assist',
       odds: 2.00,
       stake: 10,
