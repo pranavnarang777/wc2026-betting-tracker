@@ -81,8 +81,8 @@ export default function App() {
         <div className="brand">
           <div className="brand__mark"><Logo /></div>
           <div>
-            <div className="brand__name">Touch<span>line</span></div>
-            <div className="brand__tag">WC2026 · Betting Ledger</div>
+            <div className="brand__name">Fore<span>cast</span></div>
+            <div className="brand__tag">WC2026 · Data, models &amp; a small live bet</div>
           </div>
         </div>
 

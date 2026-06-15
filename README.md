@@ -1,14 +1,17 @@
-# Touchline — World Cup 2026 Betting Tracker
+# Forecast — a World Cup 2026 data & model exploration
 
-A premium, single-user betting ledger for the 2026 World Cup. Track every wager,
-settle bets in a click, and analyse your edge — P&L by market, win rate by odds
-range, and closing-line value (CLV) against the Pinnacle close.
+A single-user project for exploring sports forecasting with data and AI: Elo
+ratings, xG form, and market odds feed a model for each World Cup 2026 fixture,
+backed by a "Generate Briefing" export. A handful of small real-money bets sit
+alongside the model as a way of keeping the analysis honest — track each one,
+settle in a click, and review the model's calibration — P&L by market, win rate
+by odds range, and closing-line value (CLV) against the Pinnacle close.
 
 - **Frontend:** React + Vite + Recharts (deploy to Vercel)
 - **Backend:** Node/Express + SQLite via `better-sqlite3` (deploy to Render, free tier)
 - **No auth, single user.** Mobile responsive.
 
-The look — *Touchline* — is a stadium-at-night dark theme: emerald "in-profit"
+The look — *Forecast* — is a stadium-at-night dark theme: emerald "in-profit"
 green, coral loss red, electric-blue accents, with Space Grotesk display type and
 Space Mono tabular figures.
 

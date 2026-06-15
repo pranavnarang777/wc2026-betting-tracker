@@ -35,7 +35,9 @@ export default function Dashboard({ bets, onAdd }) {
       <div className="page__head">
         <div>
           <h1 className="page__title">Dashboard</h1>
-          <p className="page__sub">Your World Cup 2026 betting performance at a glance.</p>
+          <p className="page__sub">
+            An AI + data exploration of World Cup 2026 — Elo, xG and odds models, tested with a small real stake to keep the analysis honest.
+          </p>
         </div>
       </div>
 
@@ -172,8 +174,8 @@ function HowWeBet() {
   return (
     <div className="card" style={{ marginTop: 16 }}>
       <div className="card__head">
-        <div className="card__title">How We Bet</div>
-        <div className="muted" style={{ fontSize: 12.5 }}>process, not vibes</div>
+        <div className="card__title">How The Model Works</div>
+        <div className="muted" style={{ fontSize: 12.5 }}>data and process, not vibes</div>
       </div>
 
       <div className="card__pad howwebet">
