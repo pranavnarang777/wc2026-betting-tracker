@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine,
@@ -42,6 +42,8 @@ export default function Dashboard({ bets, onAdd }) {
         </div>
       </div>
 
+      <BankrollStatus realisedProfit={s.pnl} />
+
       <div className="grid cols-3" style={{ alignItems: 'stretch' }}>
         {/* Hero P&L — spans 2 cols on wide screens */}
         <div className={`card hero ${s.pnl < 0 ? 'is-neg' : ''}`} style={{ gridColumn: 'span 2' }}>
@@ -79,6 +81,15 @@ export default function Dashboard({ bets, onAdd }) {
           <div className="stat__value">{pct(s.winRate, 0)}</div>
           <div className="stat__foot">{s.wins}W · {s.losses}L{s.cashouts ? ` · ${s.cashouts}C` : ''} (decided)</div>
         </div>
+      </div>
+
+      <div className="variance-note">
+        <span aria-hidden>⚠</span>
+        <p>
+          Win/loss results over a small sample are mostly variance, not proof of edge. The real
+          signal is <Link to="/methodology">Closing Line Value</Link> — track it. A bad bet can win;
+          a good bet can lose.
+        </p>
       </div>
 
       <div className="grid cols-4" style={{ marginTop: 16 }}>
@@ -156,6 +167,81 @@ export default function Dashboard({ bets, onAdd }) {
       </div>
 
       <HowWeBet />
+    </div>
+  );
+}
+
+const STARTING_BANKROLL = 200;
+const PRINCIPAL_KEY = 'principalWithdrawn';
+
+function BankrollStatus({ realisedProfit }) {
+  const [withdrawn, setWithdrawn] = useState(
+    () => typeof localStorage !== 'undefined' && localStorage.getItem(PRINCIPAL_KEY) === '1',
+  );
+
+  const balance = STARTING_BANKROLL + realisedProfit;
+  const houseMoney = balance - STARTING_BANKROLL; // equals realisedProfit
+  const canWithdraw = balance >= STARTING_BANKROLL;
+  const secured = withdrawn && realisedProfit > 0;
+  const profitClass = realisedProfit > 0 ? 'pos' : realisedProfit < 0 ? 'neg' : '';
+
+  const toggle = () => {
+    const next = !withdrawn;
+    setWithdrawn(next);
+    try { localStorage.setItem(PRINCIPAL_KEY, next ? '1' : '0'); } catch { /* ignore */ }
+  };
+
+  return (
+    <div className="card" style={{ marginBottom: 16 }}>
+      <div className="card__head">
+        <div className="card__title">Bankroll Status</div>
+        <div className="muted" style={{ fontSize: 12.5 }}>€200 envelope · entertainment budget</div>
+      </div>
+
+      <div className="card__pad">
+        {secured && (
+          <div className="bankroll__banner">🔒 PRINCIPAL SECURED — playing on house money</div>
+        )}
+
+        <div className="bankroll">
+          <div className="bankroll__item">
+            <span className="bankroll__label">Original envelope</span>
+            <b className="bankroll__val">{money(STARTING_BANKROLL)}</b>
+            <span className={`bankroll__sub ${withdrawn ? 'pos' : 'muted'}`}>
+              {withdrawn ? 'withdrawn ✓' : 'at risk'}
+            </span>
+          </div>
+
+          <div className="bankroll__item">
+            <span className="bankroll__label">{withdrawn ? 'House money' : 'Current balance'}</span>
+            <b className={`bankroll__val ${withdrawn ? profitClass : ''}`}>
+              {money(withdrawn ? houseMoney : balance)}
+            </b>
+            <span className="bankroll__sub muted">
+              {withdrawn ? 'profit in play' : `incl. ${signedMoney(realisedProfit)} profit`}
+            </span>
+          </div>
+
+          <div className="bankroll__item">
+            <span className="bankroll__label">Realised profit</span>
+            <b className={`bankroll__val ${profitClass}`}>{signedMoney(realisedProfit)}</b>
+            <span className="bankroll__sub muted">settled bets</span>
+          </div>
+
+          <div className="bankroll__action">
+            {withdrawn ? (
+              <button className="btn btn--sm" onClick={toggle}>Undo — principal back in play</button>
+            ) : (
+              <button className="btn btn--sm" onClick={toggle} disabled={!canWithdraw}>
+                Mark principal withdrawn (€200)
+              </button>
+            )}
+            {!withdrawn && !canWithdraw && (
+              <span className="bankroll__sub muted">available once balance ≥ €200</span>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

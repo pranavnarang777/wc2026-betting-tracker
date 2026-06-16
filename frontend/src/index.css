@@ -304,6 +304,30 @@ tr.logic-row td { padding: 0; border-bottom: 1px solid var(--line-soft); }
 .legend-row { display: flex; gap: 18px; flex-wrap: wrap; font-size: 12.5px; color: var(--text-dim); }
 .legend-row i { width: 9px; height: 9px; border-radius: 3px; display: inline-block; margin-right: 6px; vertical-align: middle; }
 
+/* Bankroll Status */
+.bankroll { display: flex; gap: 24px; align-items: flex-end; flex-wrap: wrap; }
+.bankroll__item { display: flex; flex-direction: column; gap: 3px; }
+.bankroll__label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-mute); }
+.bankroll__val { font-family: var(--font-display); font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
+.bankroll__sub { font-size: 11.5px; }
+.bankroll__action { display: flex; flex-direction: column; gap: 5px; margin-left: auto; align-items: flex-end; }
+.bankroll__banner {
+  font-family: var(--font-display); font-weight: 700; font-size: 13.5px; letter-spacing: 0.04em;
+  color: var(--green); background: rgba(34, 227, 160, 0.09);
+  border: 1px solid rgba(34, 227, 160, 0.28); border-radius: var(--radius-sm);
+  padding: 10px 14px; margin-bottom: 16px;
+}
+
+/* Variance guardrail note */
+.variance-note {
+  display: flex; gap: 10px; align-items: flex-start;
+  margin-top: 12px; padding: 11px 14px; border-radius: var(--radius-sm);
+  background: rgba(255, 184, 77, 0.06); border: 1px solid rgba(255, 184, 77, 0.18);
+}
+.variance-note span { color: #FFB84D; font-size: 14px; line-height: 1.5; }
+.variance-note p { margin: 0; font-size: 12.5px; color: var(--text-dim); line-height: 1.55; }
+.variance-note a { color: var(--text); text-decoration: underline; text-underline-offset: 2px; }
+
 /* Methodology prose */
 .lede { font-size: 14.5px; color: var(--text-dim); line-height: 1.65; margin: 0; }
 .lede b { color: var(--text); font-weight: 600; }
